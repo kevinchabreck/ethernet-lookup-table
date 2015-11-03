@@ -4,6 +4,7 @@ use Work.tableState.all;
 
 ENTITY RegisterArray IS
 	PORT ( 
+				in_wenable  : IN STD_LOGIC ;
 				in_aclr		: IN STD_LOGIC ;
 				in_clock	: IN STD_LOGIC ;
 				in_data		: IN STD_LOGIC_VECTOR(49 DOWNTO 0);
@@ -25,8 +26,18 @@ ARCHITECTURE RegisterArray_Architecture OF RegisterArray IS
 			enable		: IN STD_LOGIC ;
 			load		: IN STD_LOGIC ;
 			q			: OUT STD_LOGIC_VECTOR (49 DOWNTO 0)
-		);
+		 );
 	END COMPONENT;		
+
+	COMPONENT decode_5to32_top is
+    PORT (
+		 	A  : in  STD_LOGIC_VECTOR (4 downto 0);  
+           	EN : in  STD_LOGIC;
+           	X  : out STD_LOGIC_VECTOR (31 downto 0)  
+		 );                    
+	END COMPONENT;
+
+	SIGNAL enableSignal : STD_LOGIC_VECTOR(31 DOWNTO 0);
 
 BEGIN
 
@@ -35,14 +46,21 @@ BEGIN
 	tableRegisterArray:
 	FOR i IN 0 TO NUM_REGISTERS GENERATE
 		tableRegisterX : tableRegister PORT MAP (
-			aclr		=> '0',
-			clock		=> '0',
+			aclr		=> in_aclr,
+			clock		=> in_clock,
 			data		=> in_data,
-			enable		=> '0',
-			load		=> '0',
+			enable		=> enableSignal(i),
+			load		=> in_load,
 			q			=> out_q(i)
 			);
 		end GENERATE tableRegisterArray;
+
+	myDecoder : decode_5to32_top
+    PORT MAP (
+		 	A  => in_enable(4 DOWNTO 0),
+           	EN => '0',
+           	X  => enableSignal(31 DOWNTO 0)
+		 );                    
 
 
 END RegisterArray_Architecture;

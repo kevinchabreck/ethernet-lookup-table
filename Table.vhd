@@ -29,6 +29,7 @@ ARCHITECTURE Table_Architecture OF Table IS
 --LOOKUP--
 	COMPONENT RegisterArray IS
 	PORT ( 
+				in_wenable	: IN STD_LOGIC ;
 				in_aclr		: IN STD_LOGIC ;
 				in_clock	: IN STD_LOGIC ;
 				in_data		: IN STD_LOGIC_VECTOR(49 DOWNTO 0);
@@ -60,6 +61,7 @@ BEGIN
 
 	myRegisterArray : RegisterArray
 	PORT MAP ( 
+				in_wenable  => '0',
 				in_aclr		=> '0',
 				in_clock	=> '0',
 				in_data		=> input_reg(49 DOWNTO 0),
