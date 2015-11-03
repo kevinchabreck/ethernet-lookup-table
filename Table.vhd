@@ -25,41 +25,18 @@ use Work.tableState.all;
 
 
 ARCHITECTURE Table_Architecture OF Table IS
-	CONSTANT NUM_REGISTERS : INTEGER := 31;
-	CONSTANT PORT1		   : INTEGER := 49;
-	CONSTANT PORT0		   : INTEGER := 48;
-
---INPUT REGISTER--
-
-	COMPONENT inputRegister 
-	PORT (
-			aclr		: IN STD_LOGIC ;
-			aset		: IN STD_LOGIC ;
-			clock		: IN STD_LOGIC ;
-			data		: IN STD_LOGIC_VECTOR (97 DOWNTO 0);
-			enable		: IN STD_LOGIC ;
-			load		: IN STD_LOGIC ;
-			shiftin		: IN STD_LOGIC ;
-			q			: OUT STD_LOGIC_VECTOR (97 DOWNTO 0)
-		);
-	END COMPONENT;
-
---TABLE REGISTER--
-
-	COMPONENT tableRegister 
-	PORT (
-			aclr		: IN STD_LOGIC ;
-			aset		: IN STD_LOGIC ;
-			clock		: IN STD_LOGIC ;
-			data		: IN STD_LOGIC_VECTOR (49 DOWNTO 0);
-			enable		: IN STD_LOGIC ;
-			load		: IN STD_LOGIC ;
-			shiftin		: IN STD_LOGIC ;
-			q			: OUT STD_LOGIC_VECTOR (49 DOWNTO 0)
-		);
-	END COMPONENT;		
 
 --LOOKUP--
+	COMPONENT RegisterArray IS
+	PORT ( 
+				in_aclr		: IN STD_LOGIC ;
+				in_clock	: IN STD_LOGIC ;
+				in_data		: IN STD_LOGIC_VECTOR(49 DOWNTO 0);
+				in_enable	: IN STD_LOGIC_VECTOR(4 DOWNTO 0);
+				in_load		: IN STD_LOGIC ;
+				out_q		: OUT VECTOR_MAC_PORT(NUM_REGISTERS DOWNTO 0)
+		);
+	END COMPONENT;
 
 	COMPONENT Lookup IS
 	PORT (
@@ -75,24 +52,22 @@ ARCHITECTURE Table_Architecture OF Table IS
 
 	SIGNAL tableRegisterOutput : VECTOR_MAC_PORT(NUM_REGISTERS DOWNTO 0);
 	SIGNAL myLookup_registerNumber : STD_LOGIC_VECTOR(4 DOWNTO 0);
+	SIGNAL writeEnable				: STD_LOGIC_VECTOR(4 DOWNTO 0);
 
 BEGIN
 
 --COMPONENT INSTANTIATIONS--
 
-	tableRegisterArray:
-	FOR i IN 0 TO NUM_REGISTERS GENERATE
-		tableRegisterX : tableRegister PORT MAP (
-			aclr		=> '0',
-			aset		=> '0',
-			clock		=> '0',
-			data		=> input_reg(49 DOWNTO 0), 
-			enable		=> '0',
-			load		=> '0',
-			shiftin		=> '0',
-			q			=> tableRegisterOutput(i)
-			);
-		end GENERATE tableRegisterArray;
+	myRegisterArray : RegisterArray
+	PORT MAP ( 
+				in_aclr		=> '0',
+				in_clock	=> '0',
+				in_data		=> input_reg(49 DOWNTO 0),
+				in_enable	=> writeEnable(4 DOWNTO 0),
+				in_load		=> '0',
+				out_q		=> tableRegisterOutput(NUM_REGISTERS DOWNTO 0)
+			 );
+
 
 	myLookup : Lookup
 	PORT MAP (

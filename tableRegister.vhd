@@ -43,12 +43,10 @@ ENTITY tableRegister IS
 	PORT
 	(
 		aclr		: IN STD_LOGIC ;
-		aset		: IN STD_LOGIC ;
 		clock		: IN STD_LOGIC ;
 		data		: IN STD_LOGIC_VECTOR (49 DOWNTO 0);
 		enable		: IN STD_LOGIC ;
 		load		: IN STD_LOGIC ;
-		shiftin		: IN STD_LOGIC ;
 		q		: OUT STD_LOGIC_VECTOR (49 DOWNTO 0)
 	);
 END tableRegister;
@@ -62,7 +60,6 @@ ARCHITECTURE SYN OF tableregister IS
 
 	COMPONENT lpm_shiftreg
 	GENERIC (
-		lpm_avalue		: STRING;
 		lpm_direction		: STRING;
 		lpm_type		: STRING;
 		lpm_width		: NATURAL
@@ -72,10 +69,8 @@ ARCHITECTURE SYN OF tableregister IS
 			clock	: IN STD_LOGIC ;
 			data	: IN STD_LOGIC_VECTOR (49 DOWNTO 0);
 			load	: IN STD_LOGIC ;
-			aset	: IN STD_LOGIC ;
 			enable	: IN STD_LOGIC ;
-			q	: OUT STD_LOGIC_VECTOR (49 DOWNTO 0);
-			shiftin	: IN STD_LOGIC 
+			q	: OUT STD_LOGIC_VECTOR (49 DOWNTO 0)
 	);
 	END COMPONENT;
 
@@ -84,7 +79,6 @@ BEGIN
 
 	LPM_SHIFTREG_component : LPM_SHIFTREG
 	GENERIC MAP (
-		lpm_avalue => "0",
 		lpm_direction => "RIGHT",
 		lpm_type => "LPM_SHIFTREG",
 		lpm_width => 50
@@ -94,9 +88,7 @@ BEGIN
 		clock => clock,
 		data => data,
 		load => load,
-		aset => aset,
 		enable => enable,
-		shiftin => shiftin,
 		q => sub_wire0
 	);
 
@@ -109,8 +101,8 @@ END SYN;
 -- ============================================================
 -- Retrieval info: PRIVATE: ACLR NUMERIC "1"
 -- Retrieval info: PRIVATE: ALOAD NUMERIC "0"
--- Retrieval info: PRIVATE: ASET NUMERIC "1"
--- Retrieval info: PRIVATE: ASET_ALL1 NUMERIC "0"
+-- Retrieval info: PRIVATE: ASET NUMERIC "0"
+-- Retrieval info: PRIVATE: ASET_ALL1 NUMERIC "1"
 -- Retrieval info: PRIVATE: CLK_EN NUMERIC "1"
 -- Retrieval info: PRIVATE: INTENDED_DEVICE_FAMILY STRING "Cyclone II"
 -- Retrieval info: PRIVATE: LeftShift NUMERIC "0"
@@ -121,30 +113,25 @@ END SYN;
 -- Retrieval info: PRIVATE: SSET NUMERIC "0"
 -- Retrieval info: PRIVATE: SSET_ALL1 NUMERIC "1"
 -- Retrieval info: PRIVATE: SYNTH_WRAPPER_GEN_POSTFIX STRING "0"
--- Retrieval info: PRIVATE: SerialShiftInput NUMERIC "1"
+-- Retrieval info: PRIVATE: SerialShiftInput NUMERIC "0"
 -- Retrieval info: PRIVATE: SerialShiftOutput NUMERIC "0"
 -- Retrieval info: PRIVATE: nBit NUMERIC "50"
 -- Retrieval info: PRIVATE: new_diagram STRING "1"
 -- Retrieval info: LIBRARY: lpm lpm.lpm_components.all
--- Retrieval info: CONSTANT: LPM_AVALUE STRING "0"
 -- Retrieval info: CONSTANT: LPM_DIRECTION STRING "RIGHT"
 -- Retrieval info: CONSTANT: LPM_TYPE STRING "LPM_SHIFTREG"
 -- Retrieval info: CONSTANT: LPM_WIDTH NUMERIC "50"
 -- Retrieval info: USED_PORT: aclr 0 0 0 0 INPUT NODEFVAL "aclr"
--- Retrieval info: USED_PORT: aset 0 0 0 0 INPUT NODEFVAL "aset"
 -- Retrieval info: USED_PORT: clock 0 0 0 0 INPUT NODEFVAL "clock"
 -- Retrieval info: USED_PORT: data 0 0 50 0 INPUT NODEFVAL "data[49..0]"
 -- Retrieval info: USED_PORT: enable 0 0 0 0 INPUT NODEFVAL "enable"
 -- Retrieval info: USED_PORT: load 0 0 0 0 INPUT NODEFVAL "load"
 -- Retrieval info: USED_PORT: q 0 0 50 0 OUTPUT NODEFVAL "q[49..0]"
--- Retrieval info: USED_PORT: shiftin 0 0 0 0 INPUT NODEFVAL "shiftin"
 -- Retrieval info: CONNECT: @aclr 0 0 0 0 aclr 0 0 0 0
--- Retrieval info: CONNECT: @aset 0 0 0 0 aset 0 0 0 0
 -- Retrieval info: CONNECT: @clock 0 0 0 0 clock 0 0 0 0
 -- Retrieval info: CONNECT: @data 0 0 50 0 data 0 0 50 0
 -- Retrieval info: CONNECT: @enable 0 0 0 0 enable 0 0 0 0
 -- Retrieval info: CONNECT: @load 0 0 0 0 load 0 0 0 0
--- Retrieval info: CONNECT: @shiftin 0 0 0 0 shiftin 0 0 0 0
 -- Retrieval info: CONNECT: q 0 0 50 0 @q 0 0 50 0
 -- Retrieval info: GEN_FILE: TYPE_NORMAL tableRegister.vhd TRUE
 -- Retrieval info: GEN_FILE: TYPE_NORMAL tableRegister.inc FALSE
