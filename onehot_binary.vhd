@@ -3,10 +3,10 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity onehot_binary is
-  port    ( onehot_in  : in  std_logic_vector;
-            binary_out : out std_logic_vector  );
+  port    ( onehot_in  : in  std_logic_vector(31 downto 0);
+            binary_out : out std_logic_vector(4 downto 0)  );
   begin
-    assert 2**binary_out'length = onehot_in'length severity failure;
+    --assert 2**binary_out'length = onehot_in'length severity failure;
 
 end;
 
