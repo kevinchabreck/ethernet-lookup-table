@@ -52,9 +52,9 @@ ARCHITECTURE Table_Architecture OF Table IS
         input_registerArray0    : std_LOGIC_VECTOR(49 DOWNTO 0);
         input_registerArray1    : std_LOGIC_VECTOR(49 DOWNTO 0);
         input_registerArray2    : std_LOGIC_VECTOR(49 DOWNTO 0);
-        input_registerArray3    : std_LOGIC_VECTOR (49 DOWNTO 0);
+        input_registerArray3    : std_LOGIC_VECTOR(49 DOWNTO 0);
         input_registerArray4    : std_LOGIC_VECTOR(49 DOWNTO 0);
-        input_register          : IN STD_LOGIC_VECTOR(47 DOWNTO 0);
+        input_register          : IN  STD_LOGIC_VECTOR(47 DOWNTO 0);
         output_port             : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
         output_valid            : OUT STD_LOGIC;
         output_registerNumber   : OUT STD_LOGIC_VECTOR(4 DOWNTO 0)
