@@ -1,2 +1,8 @@
 # quartus backup files
 *.vhd.bak
+*.swp
+*.qpf
+*.qsf
+*.qip
+*.cmp
+*/
