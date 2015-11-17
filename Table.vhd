@@ -21,7 +21,13 @@ use Work.tableState.all;
         write_enable  : OUT STD_LOGIC; -- indicates we have read input_reg
         output_valid  : OUT STD_LOGIC; -- indicates valid data in output_reg
         address_found : OUT STD_LOGIC; -- indicates table contains entry for dst address
-        output_reg    : OUT STD_LOGIC_VECTOR(1 DOWNTO 0) -- return same port if src not in table
+        output_reg    : OUT STD_LOGIC_VECTOR(1 DOWNTO 0); -- return same port if src not in table
+
+
+		-- Test outputs
+		testMuxOutput : OUT STD_LOGIC_VECTOR(4 DOWNTO 0);
+		testOutputValid : OUT STD_LOGIC;
+		testOutputSrcLookup : OUT STD_LOGIC_VECTOR(4 DOWNTO 0)
     );
     END Table;
 
@@ -78,6 +84,58 @@ ARCHITECTURE Table_Architecture OF Table IS
     );
     END component;
 
+	component D_FF_5bit IS
+	port (
+		clk : in std_logic;
+		rst : in std_logic;
+		pre : in std_logic;
+		ce  : in std_logic;
+		d : in std_logic_vector(4 downto 0);
+		q : out std_logic_vector(4 downto 0)
+	);
+	end component;
+
+
+	component D_FF_2bit IS
+	port (
+		clk : in std_logic;
+		rst : in std_logic;
+		pre : in std_logic;
+		ce  : in std_logic;
+		d : in std_logic_vector(1 downto 0);
+		q : out std_logic_vector(1 downto 0)
+	);
+	end component;
+
+
+
+	component D_FF IS
+	port (
+		clk : in std_logic;
+		rst : in std_logic;
+		pre : in std_logic;
+		ce  : in std_logic;
+		d : in std_logic;
+		q : out std_logic
+	);
+	end component;
+
+	component D_FF_VHDL IS
+	port (
+		clk : in std_logic;
+		rst : in std_logic;
+		pre : in std_logic;
+		ce  : in std_logic;
+		d : in std_logic_vector(49 downto 0);
+		q : out std_logic_vector(49 downto 0)
+	);
+	end component;
+
+	--FSM--
+	TYPE state_type IS (A, B, C);
+	SIGNAL current_state, next_state: state_type;
+
+
     --SIGNALS--
     SIGNAL tableRegisterOutput0 : STD_LOGIC_VECTOR(49 downto 0);
     SIGNAL tableRegisterOutput1 : STD_LOGIC_VECTOR(49 downto 0);
@@ -91,6 +149,12 @@ ARCHITECTURE Table_Architecture OF Table IS
     SIGNAL blank_output_reg: STD_LOGIC_VECTOR(1 downto 0);
     signal is_src_there: STD_LOGIC;
     SIGNAL writeEnable: STD_LOGIC_VECTOR(4 DOWNTO 0);
+
+	 --SIGNAL writeEnableDFF : STD_LOGIC_VECTOR(4 DOWNTO 0);
+	 --SIGNAL output_validDFF : STD_LOGIC;
+	 --SIGNAL output_regDFF : STD_LOGIC_VECTOR(1 DOWNTO 0);
+	 --SIGNAL input_regDFF : STD_LOGIC_VECTOR(49 DOWNTO 0);
+	 
 
 BEGIN
     --COMPONENT INSTANTIATIONS--
@@ -148,5 +212,94 @@ BEGIN
         sel     => is_src_there,
         result => writeEnable(4 downto 0)
     );
+
+
+	--myD_FF_2bit : D_FF_2bit
+	--PORT map (
+	--		clk => clock,
+	--		rst => '0',
+	--		pre => '0',
+	--		ce  => clock,
+	--		d 	=> output_regDFF,
+	--		q	=> output_reg
+	--	);
+
+
+	--myD_FF_5bit : D_FF_5bit
+	--PORT map (
+	--		clk => clock,
+	--		rst => '0',
+	--		pre => '0',
+	--		ce  => clock,
+	--		d 	=> writeEnableDFF,
+	--		q	=> writeEnable
+	--	);
+
+
+	--myD_FF_50bit : D_FF_VHDL
+	--PORT map (
+	--		clk => clock,
+	--		rst => '0',
+	--		pre => '0',
+	--		ce  => clock,
+	--		d 	=> input_reg(49 DOWNTO 0),
+	--		q	=> input_regDFF(49 DOWNTO 0)
+	--	);
+
+
+	--myD_FF : D_FF
+	--PORT map (
+	--		clk => clock,
+	--		rst => '0',
+	--		pre => '0',
+	--		ce  => clock,
+	--		d 	=> output_validDFF,
+	--		q	=> output_valid
+	--	);
+
+
+
+--	component D_FF_2bit IS
+--	port (
+--		clk : in std_logic;
+--		rst : in std_logic;
+--		pre : in std_logic;
+--		ce  : in std_logic;
+--		d : in std_logic_vector(1 downto 0);
+--		q : out std_logic_vector(1 downto 0)
+--	);
+
+PROCESS (clock)
+BEGIN
+	if(rising_edge(clock))  then
+		current_state <= next_state;
+	end if;
+END PROCESS
+
+
+PROCESS(current_state, input_valid)
+BEGIN
+	case current_state is
+		when A =>
+		if(input_valid = '1') then
+			next_state <= B;
+			else 
+				next_state <= A;
+			end if
+
+		when B =>
+			lookup stuff
+		when C => write
+	
+
+END PROCESS
+
+
+
+
+
+	testMuxOutput <= writeEnable(4 downto 0);
+	testOutputValid <= is_src_there;
+	testOutputSrcLookup <= myLookup_registerNumber(4 DOWNTO 0);
 
 END Table_Architecture;
