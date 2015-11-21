@@ -135,7 +135,6 @@ ARCHITECTURE Table_Architecture OF Table IS
 	TYPE state_type IS (A, B, C);
 	SIGNAL current_state, next_state: state_type;
 
-
     --SIGNALS--
     SIGNAL tableRegisterOutput0 : STD_LOGIC_VECTOR(49 downto 0);
     SIGNAL tableRegisterOutput1 : STD_LOGIC_VECTOR(49 downto 0);
@@ -149,12 +148,13 @@ ARCHITECTURE Table_Architecture OF Table IS
     SIGNAL blank_output_reg: STD_LOGIC_VECTOR(1 downto 0);
     signal is_src_there: STD_LOGIC;
     SIGNAL writeEnable: STD_LOGIC_VECTOR(4 DOWNTO 0);
+    SIGNAL tmp_output_reg    : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
 
 	 --SIGNAL writeEnableDFF : STD_LOGIC_VECTOR(4 DOWNTO 0);
 	 --SIGNAL output_validDFF : STD_LOGIC;
 	 --SIGNAL output_regDFF : STD_LOGIC_VECTOR(1 DOWNTO 0);
 	 --SIGNAL input_regDFF : STD_LOGIC_VECTOR(49 DOWNTO 0);
-	 
+
 
 BEGIN
     --COMPONENT INSTANTIATIONS--
@@ -281,17 +281,14 @@ PROCESS(current_state, input_valid)
 BEGIN
 	case current_state is
 		when A =>
-		if(input_valid = '1') then
-			next_state <= B;
-			else 
-				next_state <= A;
-			end if
-
+    		if(input_valid = '1') then
+    			next_state <= B;
+    		else
+    			next_state <= A;
+    		end if
 		when B =>
 			lookup stuff
 		when C => write
-	
-
 END PROCESS
 
 
