@@ -205,7 +205,7 @@ BEGIN
 
 	test_srcLookupValid <= is_src_there;
 	test_srcOutputPort  <= myLookup_registerNumber;
-
 	test_input_register <= input_signal;
+
 
 END Table_Architecture;
