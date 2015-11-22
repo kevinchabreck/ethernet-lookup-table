@@ -4,7 +4,6 @@ use Work.tableState.all;
 
 ENTITY RegisterArray IS
 	PORT ( 
-				in_wenable  : IN STD_LOGIC ;
 				in_aclr		: IN STD_LOGIC ;
 				in_clock	: IN STD_LOGIC ;
 				in_data		: IN STD_LOGIC_VECTOR(49 DOWNTO 0);

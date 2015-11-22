@@ -16,7 +16,7 @@ use Work.tableState.all;
     PORT (
         clock         : IN STD_LOGIC; -- clock
         input_valid   : IN  STD_LOGIC; -- indicates valid data in input_reg
-        input_reg     : IN  STD_LOGIC_VECTOR(97 DOWNTO 0); -- dst | src | port
+        input_reg     : IN  STD_LOGIC_VECTOR(97 DOWNTO 0); -- port | source | destination
         test_en       : IN STD_LOGIC_VECTOR(4 downto 0);
         write_enable  : OUT STD_LOGIC; -- indicates we have read input_reg
         output_valid  : OUT STD_LOGIC; -- indicates valid data in output_reg
@@ -28,10 +28,22 @@ use Work.tableState.all;
 
 ARCHITECTURE Table_Architecture OF Table IS
 
+	--INPUT REGISTER--
+	component D_FF_INPUT IS
+	PORT 
+	(
+		clk : in std_logic;
+		rst : in std_logic;
+		pre : in std_logic;
+		ce  : in std_logic;
+		d 	: in std_logic_vector(97 downto 0);
+		q 	: out std_logic_vector(97 downto 0)
+	);
+	END component;
+
     --LOOKUP--
     component RegisterArray IS
     PORT (
-        in_wenable  : IN STD_LOGIC ;
         in_aclr     : IN STD_LOGIC ;
         in_clock    : IN STD_LOGIC ;
         in_data     : IN STD_LOGIC_VECTOR(49 DOWNTO 0);
@@ -92,14 +104,27 @@ ARCHITECTURE Table_Architecture OF Table IS
     signal is_src_there: STD_LOGIC;
     SIGNAL writeEnable: STD_LOGIC_VECTOR(4 DOWNTO 0);
 
+	SIGNAL input_signal : STD_LOGIC_VECTOR(97 DOWNTO 0);
+
 BEGIN
     --COMPONENT INSTANTIATIONS--
+
+	input_register_DFF : D_FF_INPUT 
+	PORT MAP
+	(
+		clk => clock,
+		rst => '0',
+		pre => '0',
+		ce  => input_valid,
+		d 	=> input_reg,
+		q 	=> input_signal
+	);
+
     myRegisterArray : RegisterArray
     PORT MAP (
-        in_wenable  => '0',
         in_aclr     => '0',
         in_clock    => clock,
-        in_data     => input_reg(49 DOWNTO 0),
+        in_data     => input_signal(49 DOWNTO 0),
         in_enable   => writeEnable,
         in_load     => '0',
         out_q0      => tableRegisterOutput0(49 Downto 0),
@@ -116,7 +141,7 @@ BEGIN
         input_registerArray2    => tableRegisterOutput2(49 downto 0),
         input_registerArray3    => tableRegisterOutput3(49 downto 0),
         input_registerArray4    => tableRegisterOutput4(49 downto 0),
-        input_register          => input_reg(97 DOWNTO 50),
+        input_register          => input_signal(97 DOWNTO 50),
         output_port             => output_reg,
         output_valid            => output_valid,
         output_registerNumber   => blank_regNum
@@ -129,7 +154,7 @@ BEGIN
         input_registerArray2    => tableRegisterOutput2(49 downto 0),
         input_registerArray3    => tableRegisterOutput3(49 downto 0),
         input_registerArray4    => tableRegisterOutput4(49 downto 0),
-        input_register          => input_reg(49 DOWNTO 2),
+        input_register          => input_signal(49 DOWNTO 2),
         output_port             => blank_output_reg,
         output_valid            => is_src_there,
         output_registerNumber   => myLookup_registerNumber(4 DOWNTO 0)
