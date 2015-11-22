@@ -5,12 +5,12 @@ use Work.tableState.all;
 
 ENTITY Lookup IS
 PORT (
-	input_registerArray0 	: std_LOGIC_VECTOR(49 DOWNTO 0);
-	input_registerArray1 	: std_LOGIC_VECTOR(49 DOWNTO 0);
-	input_registerArray2 	: std_LOGIC_VECTOR(49 DOWNTO 0);
-	input_registerArray3 	: std_LOGIC_VECTOR(49 DOWNTO 0);
-	input_registerArray4 	: std_LOGIC_VECTOR(49 DOWNTO 0);
-	input_register			: IN STD_LOGIC_VECTOR(47 DOWNTO 0);
+	input_registerArray0 	: std_LOGIC_VECTOR(REGISTER_SIZE DOWNTO 0);
+	input_registerArray1 	: std_LOGIC_VECTOR(REGISTER_SIZE DOWNTO 0);
+	input_registerArray2 	: std_LOGIC_VECTOR(REGISTER_SIZE DOWNTO 0);
+	input_registerArray3 	: std_LOGIC_VECTOR(REGISTER_SIZE DOWNTO 0);
+	input_registerArray4 	: std_LOGIC_VECTOR(REGISTER_SIZE DOWNTO 0);
+	input_register			: IN STD_LOGIC_VECTOR(MAC_SIZE DOWNTO 0);
 	output_port				: OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
 	output_valid			: OUT STD_LOGIC;
 	output_registerNumber	: OUT STD_LOGIC_VECTOR(4 DOWNTO 0)
@@ -72,49 +72,49 @@ ARCHITECTURE Lookup_Architecture OF Lookup IS
 	--ONEHOT BINARY--
 	COMPONENT onehot_binary
 	PORT (
-		onehot_in  : IN  STD_LOGIC_VECTOR(31 DOWNTO 0);
+		onehot_in  : IN  STD_LOGIC_VECTOR(NUM_REGISTERS DOWNTO 0);
        	binary_out : OUT STD_LOGIC_VECTOR (4 DOWNTO 0);
 		outVal : OUT STD_LOGIC
 	);
 	END COMPONENT;
 
 	SIGNAL tableRegisterOutput : VECTOR_MAC_PORT(NUM_REGISTERS DOWNTO 0);
-	SIGNAL tableComparatorOutput : STD_LOGIC_VECTOR(31 DOWNTO 0);
+	SIGNAL tableComparatorOutput : STD_LOGIC_VECTOR(NUM_REGISTERS DOWNTO 0);
 	SIGNAL onehot_binaryOutput : STD_LOGIC_VECTOR(4 DOWNTO 0);
 
 BEGIN
 
 	tableComparator0 : tableComparator
 	PORT MAP (
-		dataa		=>	input_registerArray0(49 DOWNTO 2),
+		dataa		=>	input_registerArray0(REGISTER_SIZE DOWNTO 2),
 		datab		=>	input_register(47 DOWNTO 0),
 		aeb			=>	tableComparatorOutput(0)
 	);
 
 	tableComparator1 : tableComparator
 	PORT MAP (
-		dataa		=>	input_registerArray1(49 DOWNTO 2),
+		dataa		=>	input_registerArray1(REGISTER_SIZE DOWNTO 2),
 		datab		=>	input_register(47 DOWNTO 0),
 		aeb			=>	tableComparatorOutput(1)
 	);
 
 	tableComparator2 : tableComparator
 	PORT MAP (
-		dataa		=>	input_registerArray2(49 DOWNTO 2),
+		dataa		=>	input_registerArray2(REGISTER_SIZE DOWNTO 2),
 		datab		=>	input_register(47 DOWNTO 0),
 		aeb			=>	tableComparatorOutput(2)
 	);
 
 	tableComparator3 : tableComparator
 	PORT MAP (
-		dataa		=>	input_registerArray3(49 DOWNTO 2),
+		dataa		=>	input_registerArray3(REGISTER_SIZE DOWNTO 2),
 		datab		=>	input_register(47 DOWNTO 0),
 		aeb			=>	tableComparatorOutput(3)
 	);
 
 	tableComparator4 : tableComparator
 	PORT MAP (
-		dataa		=>	input_registerArray4(49 DOWNTO 2),
+		dataa		=>	input_registerArray4(REGISTER_SIZE DOWNTO 2),
 		datab		=>	input_register(47 DOWNTO 0),
 		aeb			=>	tableComparatorOutput(4)
 	);
@@ -122,18 +122,18 @@ BEGIN
 
 	onehot_binary0 : onehot_binary
 	PORT MAP (
-		onehot_in 	=> tableComparatorOutput(31 DOWNTO 0),
+		onehot_in 	=> tableComparatorOutput(NUM_REGISTERS DOWNTO 0),
 		binary_out 	=> onehot_binaryOutput (4 DOWNTO 0),
 		outVal => output_valid
 	);
 
 	outputPortMux0 	: outputPortMux
 	PORT MAP (
-		data0x		=> input_registerArray0(1 downto 0),
-		data1x		=> input_registerArray1(1 downto 0),
-		data2x		=> input_registerArray2(1 downto 0),
-		data3x		=> input_registerArray3(1 downto 0),
-		data4x		=> input_registerArray4(1 downto 0),
+		data0x		=> input_registerArray0(REGISTER_SIZE downto 48),
+		data1x		=> input_registerArray1(REGISTER_SIZE downto 48),
+		data2x		=> input_registerArray2(REGISTER_SIZE downto 48),
+		data3x		=> input_registerArray3(REGISTER_SIZE downto 48),
+		data4x		=> input_registerArray4(REGISTER_SIZE downto 48),
 		data5x		=> "00",
 		data6x		=> "00",
 		data7x		=> "00",
