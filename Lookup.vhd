@@ -5,11 +5,12 @@ use Work.tableState.all;
 
 ENTITY Lookup IS
 PORT (
-	input_registerArray0 	: std_LOGIC_VECTOR(49 DOWNTO 0);
-	input_registerArray1 	: std_LOGIC_VECTOR(49 DOWNTO 0);
-	input_registerArray2 	: std_LOGIC_VECTOR(49 DOWNTO 0);
-	input_registerArray3 	: std_LOGIC_VECTOR(49 DOWNTO 0);
-	input_registerArray4 	: std_LOGIC_VECTOR(49 DOWNTO 0);
+	input_registerArray : VECTOR_MAC_PORT(NUM_REGISTERS DOWNTO 0);
+	--input_registerArray0 	: std_LOGIC_VECTOR(49 DOWNTO 0);
+	--input_registerArray1 	: std_LOGIC_VECTOR(49 DOWNTO 0);
+	--input_registerArray2 	: std_LOGIC_VECTOR(49 DOWNTO 0);
+	--input_registerArray3 	: std_LOGIC_VECTOR(49 DOWNTO 0);
+	--input_registerArray4 	: std_LOGIC_VECTOR(49 DOWNTO 0);
 	input_register			: IN STD_LOGIC_VECTOR(47 DOWNTO 0);
 	output_port				: OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
 	output_valid			: OUT STD_LOGIC;
@@ -84,41 +85,21 @@ ARCHITECTURE Lookup_Architecture OF Lookup IS
 
 BEGIN
 
-	tableComparator0 : tableComparator
-	PORT MAP (
-		dataa		=>	input_registerArray0(49 DOWNTO 2),
-		datab		=>	input_register(47 DOWNTO 0),
-		aeb			=>	tableComparatorOutput(0)
-	);
+	--tableComparator0 : tableComparator
+	--PORT MAP (
+	--	dataa		=>	input_registerArray0(49 DOWNTO 2),
+	--	datab		=>	input_register(47 DOWNTO 0),
+	--	aeb			=>	tableComparatorOutput(0)
+	--);
 
-	tableComparator1 : tableComparator
-	PORT MAP (
-		dataa		=>	input_registerArray1(49 DOWNTO 2),
+	tableComparatorArray:
+	FOR i in 0 to NUM_REGISTERS GENERATE
+		tableComparatorX : tableComparator PORT MAP (
+		dataa		=>	input_registerArray(i)(49 DOWNTO 2),
 		datab		=>	input_register(47 DOWNTO 0),
-		aeb			=>	tableComparatorOutput(1)
-	);
-
-	tableComparator2 : tableComparator
-	PORT MAP (
-		dataa		=>	input_registerArray2(49 DOWNTO 2),
-		datab		=>	input_register(47 DOWNTO 0),
-		aeb			=>	tableComparatorOutput(2)
-	);
-
-	tableComparator3 : tableComparator
-	PORT MAP (
-		dataa		=>	input_registerArray3(49 DOWNTO 2),
-		datab		=>	input_register(47 DOWNTO 0),
-		aeb			=>	tableComparatorOutput(3)
-	);
-
-	tableComparator4 : tableComparator
-	PORT MAP (
-		dataa		=>	input_registerArray4(49 DOWNTO 2),
-		datab		=>	input_register(47 DOWNTO 0),
-		aeb			=>	tableComparatorOutput(4)
-	);
-
+		aeb			=>	tableComparatorOutput(i)
+		);
+	end GENERATE tableComparatorArray;
 
 	onehot_binary0 : onehot_binary
 	PORT MAP (
@@ -129,38 +110,38 @@ BEGIN
 
 	outputPortMux0 	: outputPortMux
 	PORT MAP (
-		data0x		=> input_registerArray0(1 downto 0),
-		data1x		=> input_registerArray1(1 downto 0),
-		data2x		=> input_registerArray2(1 downto 0),
-		data3x		=> input_registerArray3(1 downto 0),
-		data4x		=> input_registerArray4(1 downto 0),
-		data5x		=> "00",
-		data6x		=> "00",
-		data7x		=> "00",
-		data8x		=> "00",
-		data9x		=> "00",
-		data10x		=> "00",
-		data11x		=> "00",
-		data12x		=> "00",
-		data13x		=> "00",
-		data14x		=> "00",
-		data15x		=> "00",
-		data16x		=> "00",
-		data17x		=> "00",
-		data18x		=> "00",
-		data19x		=> "00",
-		data20x		=> "00",
-		data21x		=> "00",
-		data22x		=> "00",
-		data23x		=> "00",
-		data24x		=> "00",
-		data25x		=> "00",
-		data26x		=> "00",
-		data27x		=> "00",
-		data28x		=> "00",
-		data29x		=> "00",
-		data30x		=> "00",
-		data31x		=> "00",
+		data0x		=> input_registerArray(0)(1 downto 0),
+		data1x		=> input_registerArray(1)(1 downto 0),
+		data2x		=> input_registerArray(2)(1 downto 0),
+		data3x		=> input_registerArray(3)(1 downto 0),
+		data4x		=> input_registerArray(4)(1 downto 0),
+		data5x		=> input_registerArray(5)(1 downto 0),
+		data6x		=> input_registerArray(6)(1 downto 0),
+		data7x		=> input_registerArray(7)(1 downto 0),
+		data8x		=> input_registerArray(8)(1 downto 0),
+		data9x		=> input_registerArray(9)(1 downto 0),
+		data10x		=> input_registerArray(10)(1 downto 0),
+		data11x		=> input_registerArray(11)(1 downto 0),
+		data12x		=> input_registerArray(12)(1 downto 0),
+		data13x		=> input_registerArray(13)(1 downto 0),
+		data14x		=> input_registerArray(14)(1 downto 0),
+		data15x		=> input_registerArray(15)(1 downto 0),
+		data16x		=> input_registerArray(16)(1 downto 0),
+		data17x		=> input_registerArray(17)(1 downto 0),
+		data18x		=> input_registerArray(18)(1 downto 0),
+		data19x		=> input_registerArray(19)(1 downto 0),
+		data20x		=> input_registerArray(20)(1 downto 0),
+		data21x		=> input_registerArray(21)(1 downto 0),
+		data22x		=> input_registerArray(22)(1 downto 0),
+		data23x		=> input_registerArray(23)(1 downto 0),
+		data24x		=> input_registerArray(24)(1 downto 0),
+		data25x		=> input_registerArray(25)(1 downto 0),
+		data26x		=> input_registerArray(26)(1 downto 0),
+		data27x		=> input_registerArray(27)(1 downto 0),
+		data28x		=> input_registerArray(28)(1 downto 0),
+		data29x		=> input_registerArray(29)(1 downto 0),
+		data30x		=> input_registerArray(30)(1 downto 0),
+		data31x		=> input_registerArray(31)(1 downto 0),
 		sel			=> onehot_binaryOutput(4 DOWNTO 0),
 		result		=> output_port
 	);
