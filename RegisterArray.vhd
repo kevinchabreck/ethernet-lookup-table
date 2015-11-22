@@ -1,25 +1,17 @@
-library ieee;
-use IEEE.std_logic_1164.all;
-use Work.tableState.all;
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE Work.tableState.ALL;
 
 ENTITY RegisterArray IS
-	PORT ( 
-				in_aclr		: IN STD_LOGIC ;
-				in_clock	: IN STD_LOGIC ;
-				in_data		: IN STD_LOGIC_VECTOR(49 DOWNTO 0);
-				in_enable	: IN STD_LOGIC_VECTOR(4 DOWNTO 0);
-				in_load		: IN STD_LOGIC ;
-				out_q		: OUT VECTOR_PORT_MAC(NUM_REGISTERS downto 0)
-				--out_q0 : OUT STD_LOGIC_VECTOR(49 downto 0);
-				--out_q1 : OUT STD_LOGIC_VECTOR(49 downto 0);
-				--out_q2 : OUT STD_LOGIC_VECTOR(49 downto 0);
-				--out_q3 : OUT STD_LOGIC_VECTOR(49 downto 0);
-				--out_q4 : OUT STD_LOGIC_VECTOR(49 downto 0)
-				
-		);
-	END RegisterArray;
-	
-
+PORT ( 
+    in_aclr     : IN STD_LOGIC ;
+    in_clock	: IN STD_LOGIC ;
+    in_data	: IN STD_LOGIC_VECTOR(49 DOWNTO 0);
+    in_enable	: IN STD_LOGIC_VECTOR(4 DOWNTO 0);
+    in_load	: IN STD_LOGIC ;
+    out_q	: OUT VECTOR_PORT_MAC(NUM_REGISTERS downto 0)
+);
+END RegisterArray;
 		
 ARCHITECTURE RegisterArray_Architecture OF RegisterArray IS
 
