@@ -5,10 +5,10 @@ PACKAGE tableState IS
 	CONSTANT MAC_SIZE	   : INTEGER := 47;
 	CONSTANT REGISTER_SIZE : INTEGER := 49;
 	CONSTANT FRAME_SIZE	   : INTEGER := 97;
-    CONSTANT NUM_REGISTERS : INTEGER := 4;
+    CONSTANT NUM_REGISTERS : INTEGER := 31;
     CONSTANT PORT1         : INTEGER := 49;
     CONSTANT PORT0         : INTEGER := 48;
-    TYPE VECTOR_MAC_PORT IS ARRAY (NATURAL RANGE <>) OF STD_LOGIC_VECTOR(MAC_SIZE DOWNTO 0);
+    TYPE VECTOR_PORT_MAC IS ARRAY (NATURAL RANGE <>) OF STD_LOGIC_VECTOR(REGISTER_SIZE DOWNTO 0);
 END PACKAGE tableState;
 
 library ieee;
@@ -65,23 +65,24 @@ ARCHITECTURE Table_Architecture OF Table IS
         in_data     : IN STD_LOGIC_VECTOR(49 DOWNTO 0);
         in_enable   : IN STD_LOGIC_VECTOR(4 DOWNTO 0);
         in_load     : IN STD_LOGIC ;
-        --out_q     : OUT VECTOR_MAC_PORT(4 downto 0)
-        out_q0 : OUT STD_LOGIC_VECTOR(REGISTER_SIZE downto 0);
-        out_q1 : OUT STD_LOGIC_VECTOR(REGISTER_SIZE downto 0);
-        out_q2 : OUT STD_LOGIC_VECTOR(REGISTER_SIZE downto 0);
-        out_q3 : OUT STD_LOGIC_VECTOR(REGISTER_SIZE downto 0);
-        out_q4 : OUT STD_LOGIC_VECTOR(REGISTER_SIZE downto 0)
+        out_q     	: OUT VECTOR_PORT_MAC(NUM_REGISTERS downto 0)
+        --out_q0 : OUT STD_LOGIC_VECTOR(REGISTER_SIZE downto 0);
+        --out_q1 : OUT STD_LOGIC_VECTOR(REGISTER_SIZE downto 0);
+        --out_q2 : OUT STD_LOGIC_VECTOR(REGISTER_SIZE downto 0);
+        --out_q3 : OUT STD_LOGIC_VECTOR(REGISTER_SIZE downto 0);
+        --out_q4 : OUT STD_LOGIC_VECTOR(REGISTER_SIZE downto 0)
     );
     END component;
 
 
     component Lookup IS
     PORT (
-        input_registerArray0    : std_LOGIC_VECTOR(REGISTER_SIZE DOWNTO 0);
-        input_registerArray1    : std_LOGIC_VECTOR(REGISTER_SIZE DOWNTO 0);
-        input_registerArray2    : std_LOGIC_VECTOR(REGISTER_SIZE DOWNTO 0);
-        input_registerArray3    : std_LOGIC_VECTOR(REGISTER_SIZE DOWNTO 0);
-        input_registerArray4    : std_LOGIC_VECTOR(REGISTER_SIZE DOWNTO 0);
+        input_registerArray     : IN VECTOR_PORT_MAC(NUM_REGISTERS downto 0);
+        --input_registerArray0    : std_LOGIC_VECTOR(REGISTER_SIZE DOWNTO 0);
+        --input_registerArray1    : std_LOGIC_VECTOR(REGISTER_SIZE DOWNTO 0);
+        --input_registerArray2    : std_LOGIC_VECTOR(REGISTER_SIZE DOWNTO 0);
+        --input_registerArray3    : std_LOGIC_VECTOR(REGISTER_SIZE DOWNTO 0);
+        --input_registerArray4    : std_LOGIC_VECTOR(REGISTER_SIZE DOWNTO 0);
         input_register          : IN  STD_LOGIC_VECTOR(MAC_SIZE DOWNTO 0);
         output_port             : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
         output_valid            : OUT STD_LOGIC;
@@ -107,6 +108,7 @@ ARCHITECTURE Table_Architecture OF Table IS
     END component;
 
     --SIGNALS--
+    SIGNAL tableRegisterOutput 	: VECTOR_PORT_MAC(NUM_REGISTERS DOWNTO 0);
     SIGNAL tableRegisterOutput0 : STD_LOGIC_VECTOR(REGISTER_SIZE downto 0);
     SIGNAL tableRegisterOutput1 : STD_LOGIC_VECTOR(REGISTER_SIZE downto 0);
     SIGNAL tableRegisterOutput2 : STD_LOGIC_VECTOR(REGISTER_SIZE downto 0);
@@ -143,20 +145,22 @@ BEGIN
         in_data     => input_signal(FRAME_SIZE DOWNTO 48),
         in_enable   => writeEnable,
         in_load     => '0',
-        out_q0      => tableRegisterOutput0(REGISTER_SIZE Downto 0),
-        out_q1      => tableRegisterOutput1(REGISTER_SIZE Downto 0),
-        out_q2      => tableRegisterOutput2(REGISTER_SIZE downto 0),
-        out_q3      => tableRegisterOutput3(REGISTER_SIZE downto 0),
-        out_q4      => tableRegisterOutput4(REGISTER_SIZE downto 0)
+        --out_q0      => tableRegisterOutput0(REGISTER_SIZE Downto 0),
+        --out_q1      => tableRegisterOutput1(REGISTER_SIZE Downto 0),
+        --out_q2      => tableRegisterOutput2(REGISTER_SIZE downto 0),
+        --out_q3      => tableRegisterOutput3(REGISTER_SIZE downto 0),
+        --out_q4      => tableRegisterOutput4(REGISTER_SIZE downto 0)
+        out_q      => tableRegisterOutput(NUM_REGISTERS downto 0)
      );
 
     destLookup : Lookup
     PORT MAP (
-        input_registerArray0    => tableRegisterOutput0(REGISTER_SIZE downto 0),
-        input_registerArray1    => tableRegisterOutput1(REGISTER_SIZE downto 0),
-        input_registerArray2    => tableRegisterOutput2(REGISTER_SIZE downto 0),
-        input_registerArray3    => tableRegisterOutput3(REGISTER_SIZE downto 0),
-        input_registerArray4    => tableRegisterOutput4(REGISTER_SIZE downto 0),
+		tableRegisterOutput(NUM_REGISTERS DOWNTO 0),
+        --input_registerArray0    => tableRegisterOutput0(REGISTER_SIZE downto 0),
+        --input_registerArray1    => tableRegisterOutput1(REGISTER_SIZE downto 0),
+        --input_registerArray2    => tableRegisterOutput2(REGISTER_SIZE downto 0),
+        --input_registerArray3    => tableRegisterOutput3(REGISTER_SIZE downto 0),
+        --input_registerArray4    => tableRegisterOutput4(REGISTER_SIZE downto 0),
         input_register          => input_signal(REGISTER_SIZE DOWNTO 2),
         output_port             => output_reg,
         output_valid            => output_valid,
@@ -165,11 +169,12 @@ BEGIN
 
     srcLookup : Lookup
     PORT MAP (
-        input_registerArray0    => tableRegisterOutput0(REGISTER_SIZE downto 0),
-        input_registerArray1    => tableRegisterOutput1(REGISTER_SIZE downto 0),
-        input_registerArray2    => tableRegisterOutput2(REGISTER_SIZE downto 0),
-        input_registerArray3    => tableRegisterOutput3(REGISTER_SIZE downto 0),
-        input_registerArray4    => tableRegisterOutput4(REGISTER_SIZE downto 0),
+		tableRegisterOutput(NUM_REGISTERS DOWNTO 0),
+        --input_registerArray0    => tableRegisterOutput0(REGISTER_SIZE downto 0),
+        --input_registerArray1    => tableRegisterOutput1(REGISTER_SIZE downto 0),
+        --input_registerArray2    => tableRegisterOutput2(REGISTER_SIZE downto 0),
+        --input_registerArray3    => tableRegisterOutput3(REGISTER_SIZE downto 0),
+        --input_registerArray4    => tableRegisterOutput4(REGISTER_SIZE downto 0),
         input_register          => input_signal(FRAME_SIZE DOWNTO 50),
         output_port             => blank_output_reg,
         output_valid            => is_src_there,

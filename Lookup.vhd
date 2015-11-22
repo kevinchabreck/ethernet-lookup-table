@@ -5,11 +5,12 @@ use Work.tableState.all;
 
 ENTITY Lookup IS
 PORT (
-	input_registerArray0 	: std_LOGIC_VECTOR(REGISTER_SIZE DOWNTO 0);
-	input_registerArray1 	: std_LOGIC_VECTOR(REGISTER_SIZE DOWNTO 0);
-	input_registerArray2 	: std_LOGIC_VECTOR(REGISTER_SIZE DOWNTO 0);
-	input_registerArray3 	: std_LOGIC_VECTOR(REGISTER_SIZE DOWNTO 0);
-	input_registerArray4 	: std_LOGIC_VECTOR(REGISTER_SIZE DOWNTO 0);
+	input_registerArray		: VECTOR_PORT_MAC(NUM_REGISTERS DOWNTO 0);
+	--input_registerArray0 	: std_LOGIC_VECTOR(REGISTER_SIZE DOWNTO 0);
+	--input_registerArray1 	: std_LOGIC_VECTOR(REGISTER_SIZE DOWNTO 0);
+	--input_registerArray2 	: std_LOGIC_VECTOR(REGISTER_SIZE DOWNTO 0);
+	--input_registerArray3 	: std_LOGIC_VECTOR(REGISTER_SIZE DOWNTO 0);
+	--input_registerArray4 	: std_LOGIC_VECTOR(REGISTER_SIZE DOWNTO 0);
 	input_register			: IN STD_LOGIC_VECTOR(MAC_SIZE DOWNTO 0);
 	output_port				: OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
 	output_valid			: OUT STD_LOGIC;
@@ -78,46 +79,54 @@ ARCHITECTURE Lookup_Architecture OF Lookup IS
 	);
 	END COMPONENT;
 
-	SIGNAL tableRegisterOutput : VECTOR_MAC_PORT(NUM_REGISTERS DOWNTO 0);
+	SIGNAL tableRegisterOutput : VECTOR_PORT_MAC(NUM_REGISTERS DOWNTO 0);
 	SIGNAL tableComparatorOutput : STD_LOGIC_VECTOR(NUM_REGISTERS DOWNTO 0);
 	SIGNAL onehot_binaryOutput : STD_LOGIC_VECTOR(4 DOWNTO 0);
 
 BEGIN
 
-	tableComparator0 : tableComparator
-	PORT MAP (
-		dataa		=>	input_registerArray0(REGISTER_SIZE DOWNTO 2),
+	tableComparatorArray:
+	FOR i in 0 to NUM_REGISTERS GENERATE
+		tableComparatorX : tableComparator PORT MAP (
+		dataa		=>	input_registerArray(i)(REGISTER_SIZE DOWNTO 2),
 		datab		=>	input_register(47 DOWNTO 0),
-		aeb			=>	tableComparatorOutput(0)
+		aeb			=>	tableComparatorOutput(i)
 	);
+	end GENERATE tableComparatorArray;
+	--tableComparator0 : tableComparator
+	--PORT MAP (
+	--	dataa		=>	input_registerArray0(REGISTER_SIZE DOWNTO 2),
+	--	datab		=>	input_register(47 DOWNTO 0),
+	--	aeb			=>	tableComparatorOutput(0)
+	--);
 
-	tableComparator1 : tableComparator
-	PORT MAP (
-		dataa		=>	input_registerArray1(REGISTER_SIZE DOWNTO 2),
-		datab		=>	input_register(47 DOWNTO 0),
-		aeb			=>	tableComparatorOutput(1)
-	);
+	--tableComparator1 : tableComparator
+	--PORT MAP (
+	--	dataa		=>	input_registerArray1(REGISTER_SIZE DOWNTO 2),
+	--	datab		=>	input_register(47 DOWNTO 0),
+	--	aeb			=>	tableComparatorOutput(1)
+	--);
 
-	tableComparator2 : tableComparator
-	PORT MAP (
-		dataa		=>	input_registerArray2(REGISTER_SIZE DOWNTO 2),
-		datab		=>	input_register(47 DOWNTO 0),
-		aeb			=>	tableComparatorOutput(2)
-	);
+	--tableComparator2 : tableComparator
+	--PORT MAP (
+	--	dataa		=>	input_registerArray2(REGISTER_SIZE DOWNTO 2),
+	--	datab		=>	input_register(47 DOWNTO 0),
+	--	aeb			=>	tableComparatorOutput(2)
+	--);
 
-	tableComparator3 : tableComparator
-	PORT MAP (
-		dataa		=>	input_registerArray3(REGISTER_SIZE DOWNTO 2),
-		datab		=>	input_register(47 DOWNTO 0),
-		aeb			=>	tableComparatorOutput(3)
-	);
+	--tableComparator3 : tableComparator
+	--PORT MAP (
+	--	dataa		=>	input_registerArray3(REGISTER_SIZE DOWNTO 2),
+	--	datab		=>	input_register(47 DOWNTO 0),
+	--	aeb			=>	tableComparatorOutput(3)
+	--);
 
-	tableComparator4 : tableComparator
-	PORT MAP (
-		dataa		=>	input_registerArray4(REGISTER_SIZE DOWNTO 2),
-		datab		=>	input_register(47 DOWNTO 0),
-		aeb			=>	tableComparatorOutput(4)
-	);
+	--tableComparator4 : tableComparator
+	--PORT MAP (
+	--	dataa		=>	input_registerArray4(REGISTER_SIZE DOWNTO 2),
+	--	datab		=>	input_register(47 DOWNTO 0),
+	--	aeb			=>	tableComparatorOutput(4)
+	--);
 
 
 	onehot_binary0 : onehot_binary
@@ -129,38 +138,38 @@ BEGIN
 
 	outputPortMux0 	: outputPortMux
 	PORT MAP (
-		data0x		=> input_registerArray0(REGISTER_SIZE downto 48),
-		data1x		=> input_registerArray1(REGISTER_SIZE downto 48),
-		data2x		=> input_registerArray2(REGISTER_SIZE downto 48),
-		data3x		=> input_registerArray3(REGISTER_SIZE downto 48),
-		data4x		=> input_registerArray4(REGISTER_SIZE downto 48),
-		data5x		=> "00",
-		data6x		=> "00",
-		data7x		=> "00",
-		data8x		=> "00",
-		data9x		=> "00",
-		data10x		=> "00",
-		data11x		=> "00",
-		data12x		=> "00",
-		data13x		=> "00",
-		data14x		=> "00",
-		data15x		=> "00",
-		data16x		=> "00",
-		data17x		=> "00",
-		data18x		=> "00",
-		data19x		=> "00",
-		data20x		=> "00",
-		data21x		=> "00",
-		data22x		=> "00",
-		data23x		=> "00",
-		data24x		=> "00",
-		data25x		=> "00",
-		data26x		=> "00",
-		data27x		=> "00",
-		data28x		=> "00",
-		data29x		=> "00",
-		data30x		=> "00",
-		data31x		=> "00",
+		data0x		=> input_registerArray(0)(REGISTER_SIZE downto 48),
+		data1x		=> input_registerArray(1)(REGISTER_SIZE downto 48),
+		data2x		=> input_registerArray(2)(REGISTER_SIZE downto 48),
+		data3x		=> input_registerArray(3)(REGISTER_SIZE downto 48),
+		data4x		=> input_registerArray(4)(REGISTER_SIZE downto 48),
+		data5x		=> input_registerArray(5)(REGISTER_SIZE downto 48),
+		data6x		=> input_registerArray(6)(REGISTER_SIZE downto 48),
+		data7x		=> input_registerArray(7)(REGISTER_SIZE downto 48),
+		data8x		=> input_registerArray(8)(REGISTER_SIZE downto 48),
+		data9x		=> input_registerArray(9)(REGISTER_SIZE downto 48),
+		data10x		=> input_registerArray(10)(REGISTER_SIZE downto 48),
+		data11x		=> input_registerArray(11)(REGISTER_SIZE downto 48),
+		data12x		=> input_registerArray(12)(REGISTER_SIZE downto 48),
+		data13x		=> input_registerArray(13)(REGISTER_SIZE downto 48),
+		data14x		=> input_registerArray(14)(REGISTER_SIZE downto 48),
+		data15x		=> input_registerArray(15)(REGISTER_SIZE downto 48),
+		data16x		=> input_registerArray(16)(REGISTER_SIZE downto 48),
+		data17x		=> input_registerArray(17)(REGISTER_SIZE downto 48),
+		data18x		=> input_registerArray(18)(REGISTER_SIZE downto 48),
+		data19x		=> input_registerArray(19)(REGISTER_SIZE downto 48),
+		data20x		=> input_registerArray(20)(REGISTER_SIZE downto 48),
+		data21x		=> input_registerArray(21)(REGISTER_SIZE downto 48),
+		data22x		=> input_registerArray(22)(REGISTER_SIZE downto 48),
+		data23x		=> input_registerArray(23)(REGISTER_SIZE downto 48),
+		data24x		=> input_registerArray(24)(REGISTER_SIZE downto 48),
+		data25x		=> input_registerArray(25)(REGISTER_SIZE downto 48),
+		data26x		=> input_registerArray(26)(REGISTER_SIZE downto 48),
+		data27x		=> input_registerArray(27)(REGISTER_SIZE downto 48),
+		data28x		=> input_registerArray(28)(REGISTER_SIZE downto 48),
+		data29x		=> input_registerArray(29)(REGISTER_SIZE downto 48),
+		data30x		=> input_registerArray(30)(REGISTER_SIZE downto 48),
+		data31x		=> input_registerArray(31)(REGISTER_SIZE downto 48),
 		sel			=> onehot_binaryOutput(4 DOWNTO 0),
 		result		=> output_port
 	);

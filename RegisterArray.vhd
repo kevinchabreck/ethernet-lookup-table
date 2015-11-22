@@ -9,12 +9,12 @@ ENTITY RegisterArray IS
 				in_data		: IN STD_LOGIC_VECTOR(49 DOWNTO 0);
 				in_enable	: IN STD_LOGIC_VECTOR(4 DOWNTO 0);
 				in_load		: IN STD_LOGIC ;
-				--out_q		: OUT VECTOR_MAC_PORT(4 downto 0)
-				out_q0 : OUT STD_LOGIC_VECTOR(49 downto 0);
-				out_q1 : OUT STD_LOGIC_VECTOR(49 downto 0);
-				out_q2 : OUT STD_LOGIC_VECTOR(49 downto 0);
-				out_q3 : OUT STD_LOGIC_VECTOR(49 downto 0);
-				out_q4 : OUT STD_LOGIC_VECTOR(49 downto 0)
+				out_q		: OUT VECTOR_PORT_MAC(NUM_REGISTERS downto 0)
+				--out_q0 : OUT STD_LOGIC_VECTOR(49 downto 0);
+				--out_q1 : OUT STD_LOGIC_VECTOR(49 downto 0);
+				--out_q2 : OUT STD_LOGIC_VECTOR(49 downto 0);
+				--out_q3 : OUT STD_LOGIC_VECTOR(49 downto 0);
+				--out_q4 : OUT STD_LOGIC_VECTOR(49 downto 0)
 				
 		);
 	END RegisterArray;
@@ -56,62 +56,62 @@ BEGIN
 
 --COMPONENT INSTANTIATIONS--
 
---	tableRegisterArray:
---	FOR i IN 0 TO 4 GENERATE
---		tableRegisterX : D_FF_VHDL PORT MAP (
---			rst		=> in_aclr,
---			clk		=> in_clock,
---			d		=> in_data,
---			ce		=> enableSignal(i),
---			pre		=> in_load,
---			q			=> out_q(i)
---			);
---		end GENERATE tableRegisterArray;
+	tableRegisterArray:
+	FOR i IN 0 TO NUM_REGISTERS GENERATE
+		tableRegisterX : D_FF_VHDL PORT MAP (
+			rst		=> in_aclr,
+			clk		=> in_clock,
+			d		=> in_data,
+			ce		=> enableSignal(i),
+			pre		=> in_load,
+			q			=> out_q(i)
+			);
+		end GENERATE tableRegisterArray;
 		
-		reg0 : D_FF_VHDL PORT MAP (
-			rst		=> in_aclr,
-			clk		=> in_clock,
-			d		=> in_data,
-			ce		=> enableSignal(0),
-			pre		=> in_load,
-			q			=> out_q0
-			);
-			
-					reg1 : D_FF_VHDL PORT MAP (
-			rst		=> in_aclr,
-			clk		=> in_clock,
-			d		=> in_data,
-			ce		=> enableSignal(1),
-			pre		=> in_load,
-			q			=> out_q1
-			);
-			
-					reg2 : D_FF_VHDL PORT MAP (
-			rst		=> in_aclr,
-			clk		=> in_clock,
-			d		=> in_data,
-			ce		=> enableSignal(2),
-			pre		=> in_load,
-			q			=> out_q2
-			);
-			
-					reg3 : D_FF_VHDL PORT MAP (
-			rst		=> in_aclr,
-			clk		=> in_clock,
-			d		=> in_data,
-			ce		=> enableSignal(3),
-			pre		=> in_load,
-			q			=> out_q3
-			);
-			
-					reg4 : D_FF_VHDL PORT MAP (
-			rst		=> in_aclr,
-			clk		=> in_clock,
-			d		=> in_data,
-			ce		=> enableSignal(4),
-			pre		=> in_load,
-			q			=> out_q4
-			);
+		--reg0 : D_FF_VHDL PORT MAP (
+		--	rst		=> in_aclr,
+		--	clk		=> in_clock,
+		--	d		=> in_data,
+		--	ce		=> enableSignal(0),
+		--	pre		=> in_load,
+		--	q			=> out_q0
+		--	);
+		--	
+		--			reg1 : D_FF_VHDL PORT MAP (
+		--	rst		=> in_aclr,
+		--	clk		=> in_clock,
+		--	d		=> in_data,
+		--	ce		=> enableSignal(1),
+		--	pre		=> in_load,
+		--	q			=> out_q1
+		--	);
+		--	
+		--			reg2 : D_FF_VHDL PORT MAP (
+		--	rst		=> in_aclr,
+		--	clk		=> in_clock,
+		--	d		=> in_data,
+		--	ce		=> enableSignal(2),
+		--	pre		=> in_load,
+		--	q			=> out_q2
+		--	);
+		--	
+		--			reg3 : D_FF_VHDL PORT MAP (
+		--	rst		=> in_aclr,
+		--	clk		=> in_clock,
+		--	d		=> in_data,
+		--	ce		=> enableSignal(3),
+		--	pre		=> in_load,
+		--	q			=> out_q3
+		--	);
+		--	
+		--			reg4 : D_FF_VHDL PORT MAP (
+		--	rst		=> in_aclr,
+		--	clk		=> in_clock,
+		--	d		=> in_data,
+		--	ce		=> enableSignal(4),
+		--	pre		=> in_load,
+		--	q			=> out_q4
+		--	);
 	
 
 	myDecoder : decode_5to32_top
