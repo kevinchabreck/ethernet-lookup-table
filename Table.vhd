@@ -147,7 +147,6 @@ ARCHITECTURE Table_Architecture OF Table IS
 	TYPE state_type IS (A, B, C);
 	SIGNAL current_state, next_state: state_type;
 
-
     --SIGNALS--
 	--RegisterArray
 	SIGNAL tableRegisterOutput : VECTOR_MAC_PORT(NUM_REGISTERS DOWNTO 0);
@@ -164,7 +163,14 @@ ARCHITECTURE Table_Architecture OF Table IS
     SIGNAL blank_output_reg: STD_LOGIC_VECTOR(1 downto 0);
     signal is_src_there: STD_LOGIC;
     SIGNAL writeEnable: STD_LOGIC_VECTOR(4 DOWNTO 0);
-	 
+
+    --SIGNAL tmp_output_reg    : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
+
+	 --SIGNAL writeEnableDFF : STD_LOGIC_VECTOR(4 DOWNTO 0);
+	 --SIGNAL output_validDFF : STD_LOGIC;
+	 --SIGNAL output_regDFF : STD_LOGIC_VECTOR(1 DOWNTO 0);
+	 --SIGNAL input_regDFF : STD_LOGIC_VECTOR(49 DOWNTO 0);
+
 
 BEGIN
     --COMPONENT INSTANTIATIONS--
@@ -206,20 +212,19 @@ BEGIN
         output_registerNumber   => myLookup_registerNumber(4 DOWNTO 0)
     );
 
-    --myRandom : random
-    --port map(
-    --    clk => clock,
-    --    random_num => rand(4 downto 0)   --output vector
-    --);
+    myRandom : random
+    port map(
+        clk => clock,
+        random_num => rand(4 downto 0)   --output vector
+    );
 
-    --myMux: twoMux
-    --PORT map (
-    --    data0x => rand(4 downto 0),
-    --    data1x => myLookup_registerNumber(4 DOWNTO 0),
-    --    sel     => is_src_there,
-    --    result => writeEnable(4 downto 0)
-    --);
-
+    myMux: twoMux
+    PORT map (
+        data0x => rand(4 downto 0),
+        data1x => myLookup_registerNumber(4 DOWNTO 0),
+        sel     => is_src_there,
+        result => writeEnable(4 downto 0)
+    );
 
 	testMuxOutput <= writeEnable(4 downto 0);
 	testOutputValid <= is_src_there;
