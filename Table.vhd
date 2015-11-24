@@ -17,9 +17,10 @@ USE Work.tableState.ALL;
 ENTITY Table IS
     PORT(
         clock           : IN  STD_LOGIC;                                -- clock
+        reset           : IN  STD_LOGIC;                                -- reset
         input_valid     : IN  STD_LOGIC;                                -- indicates valid data in input_reg
         input_reg       : IN  STD_LOGIC_VECTOR(FRAME_SIZE DOWNTO 0);    -- port | source | destination
-        write_enable    : OUT STD_LOGIC;                                -- indicates we have read input_reg
+        --write_enable    : OUT STD_LOGIC;                                -- indicates we have read input_reg
         output_valid    : OUT STD_LOGIC;                                -- indicates valid data in output_reg
         address_found   : OUT STD_LOGIC;                                -- indicates table contains entry for dst address
         output_reg      : OUT STD_LOGIC_VECTOR(1 DOWNTO 0)              -- return same port if src not in table
@@ -90,7 +91,7 @@ ARCHITECTURE Table_Architecture OF Table IS
 BEGIN
     --COMPONENT INSTANTIATIONS--
 
-    input_register_DFF : D_FF_INPUT 
+    input_register_DFF : D_FF_INPUT
     PORT MAP(
         clk => clock,
         rst => '0',
