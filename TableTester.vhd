@@ -7,6 +7,7 @@ entity TableTester IS
     clock         : in  std_logic;                    -- clock
     reset         : in  std_logic;                    -- reset
     trigger_in    : in  std_logic;                    -- logic analyzer trigger
+    clock_out     : out std_logic;                    -- clock signal for logic analyzer
     trigger_out   : out std_logic;                    -- logic analyzer trigger
     src_port      : out std_logic_vector(1 downto 0); -- src port (formatted for logic analyzer)
     src_address   : out std_logic_vector(3 downto 0); -- src address (formatted for logic analyzer)
@@ -32,19 +33,28 @@ architecture TableTester_Architecture of TableTester is
   );
   end component;
 
-  type state_type is (initialize, lookUpAddressA, waitForAddressA, lookUpAddressB, waitForAddressB);
+  type state_type is (
+    initialize,
+    lookUpAddressA,
+    waitForAddressA,
+    lookUpAddressB,
+    waitForAddressB
+  );
   signal state_reg, state_next: state_type;
   signal inputvalid : std_logic;
   signal input_reg  : std_logic_vector(97 downto 0);
   signal srcaddr: integer;
   signal dstaddr: integer;
   signal srcport: integer;
-  signal clk_counter, clk_counter_next : integer;
+  signal clk_counter: integer := 0;
+  signal clk_counter_next : integer := 0;
   constant a: integer := 16#A#;
   constant b: integer := 16#B#;
   constant COMPTIME: integer := 1;
 
 begin
+
+  clock_out <= clock;
 
   table_inst : Table
   PORT MAP(
@@ -85,12 +95,17 @@ begin
           state_next <= initialize;
         end if;
       when lookUpAddressA =>
-        clk_counter_next <= 0;
         srcport  <= 1;
         srcaddr  <= b;
         dstaddr  <= a;
         inputvalid <= '1';
-        state_next <= waitForAddressA;
+        if COMPTIME > 0 then
+          clk_counter_next <= 1;
+          state_next <= waitForAddressA;
+        else
+          clk_counter_next <= 0;
+          state_next <= lookUpAddressB;
+        end if;
       when waitForAddressA =>
         clk_counter_next <= clk_counter+1;
         srcport <= 0;
@@ -103,12 +118,17 @@ begin
           state_next <= lookUpAddressB;
         end if;
       when lookUpAddressB =>
-        clk_counter_next <= 0;
         srcport <= 2;
         srcaddr <= a;
         dstaddr <= b;
         inputvalid <= '1';
-        state_next <= waitForAddressB;
+        if COMPTIME > 0 then
+          clk_counter_next <= 1;
+          state_next <= waitForAddressB;
+        else
+          clk_counter_next <= 0;
+          state_next <= lookUpAddressA;
+        end if;
       when waitForAddressB =>
         clk_counter_next <= clk_counter+1;
         srcport <= 0;
@@ -126,7 +146,7 @@ begin
   process (trigger_in, srcport, srcaddr, dstaddr, inputvalid)
   begin
     trigger_out <= trigger_in;
-    input_reg   <= conv_std_logic_vector(srcport, 2) & conv_std_logic_vector(srcaddr, 48) & conv_std_logic_vector(dstaddr, 48);
+    input_reg   <= conv_std_logic_vector(dstaddr, 48) & conv_std_logic_vector(srcaddr, 48) & conv_std_logic_vector(srcport, 2);
     input_valid <= inputvalid;
     src_port    <= conv_std_logic_vector(srcport, 2);
     src_address <= conv_std_logic_vector(srcaddr, 4);
