@@ -17,6 +17,7 @@ USE Work.tableState.ALL;
 ENTITY Table IS
     PORT(
         clock           : IN  STD_LOGIC;                                -- clock
+        reset           : IN  STD_LOGIC;                                -- reset
         input_valid     : IN  STD_LOGIC;                                -- indicates valid data in input_reg
         input_reg       : IN  STD_LOGIC_VECTOR(FRAME_SIZE DOWNTO 0);    -- port | source | destination
         output_valid    : OUT STD_LOGIC;                                -- indicates valid data in output_reg
@@ -90,10 +91,10 @@ ARCHITECTURE Table_Architecture OF Table IS
 BEGIN
     --COMPONENT INSTANTIATIONS--
 
-    input_register_DFF : D_FF_INPUT 
+    input_register_DFF : D_FF_INPUT
     PORT MAP(
         clk => clock,
-        rst => '0',
+        rst => reset,
         pre => '0',
         ce  => input_valid,
         d   => input_reg(FRAME_SIZE DOWNTO 0),
@@ -102,7 +103,7 @@ BEGIN
 
     myRegisterArray : RegisterArray
     PORT MAP(
-        in_aclr     => '0',
+        in_aclr     => reset,
         in_clock    => clock,
         in_data     => input_signal(FRAME_SIZE DOWNTO 48),
         in_enable   => writeEnable,
