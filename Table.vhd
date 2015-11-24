@@ -18,10 +18,13 @@ ENTITY Table IS
     PORT(
         clock           : IN  STD_LOGIC;                                -- clock
         input_valid     : IN  STD_LOGIC;                                -- indicates valid data in input_reg
+
         input_reg       : IN  STD_LOGIC_VECTOR(97 DOWNTO 0);    -- dest | src | port
         reset				: IN  STD_LOGIC;
 		  write_enable    : OUT STD_LOGIC;                                -- indicates we have read input_reg
+
         output_valid    : OUT STD_LOGIC;                                -- indicates valid data in output_reg
+        --I think this is redundant and we don't need it anymore, I don't know of a case where address_found and output_valid would be different
         address_found   : OUT STD_LOGIC;                                -- indicates table contains entry for dst address
         output_reg      : OUT STD_LOGIC_VECTOR(1 DOWNTO 0)              -- return same port if src not in table
 		  
@@ -102,6 +105,8 @@ ARCHITECTURE Table_Architecture OF Table IS
     SIGNAL writeEnable              : STD_LOGIC_VECTOR(4 DOWNTO 0);
     SIGNAL input_signal             : STD_LOGIC_VECTOR(97 DOWNTO 0);
 
+
+
 BEGIN
     --COMPONENT INSTANTIATIONS--
 
@@ -119,6 +124,7 @@ BEGIN
     );
 	 
 	     input_register_SRC_PRT : D_FF_VHDL 
+
     PORT MAP(
         clk => clock,
         rst => reset,
@@ -170,5 +176,6 @@ BEGIN
         sel     => is_src_there,
         result  => writeEnable(4 DOWNTO 0)
     );
+
 
 END Table_Architecture;
