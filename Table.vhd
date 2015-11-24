@@ -22,7 +22,7 @@ ENTITY Table IS
         input_reg       : IN  STD_LOGIC_VECTOR(FRAME_SIZE DOWNTO 0);    -- port | source | destination
         output_valid    : OUT STD_LOGIC;                                -- indicates valid data in output_reg
         --I think this is redundant and we don't need it anymore, I don't know of a case where address_found and output_valid would be different
-        --address_found   : OUT STD_LOGIC;                                -- indicates table contains entry for dst address
+        address_found   : OUT STD_LOGIC;                                -- indicates table contains entry for dst address
         output_reg      : OUT STD_LOGIC_VECTOR(1 DOWNTO 0)              -- return same port if src not in table
     );
 END Table;
@@ -87,6 +87,7 @@ ARCHITECTURE Table_Architecture OF Table IS
     SIGNAL is_src_there             : STD_LOGIC;
     SIGNAL writeEnable              : STD_LOGIC_VECTOR(4 DOWNTO 0);
     SIGNAL input_signal             : STD_LOGIC_VECTOR(FRAME_SIZE DOWNTO 0);
+    SIGNAL outputValid_addressFound : STD_LOGIC;
 
 BEGIN
     --COMPONENT INSTANTIATIONS--
@@ -116,7 +117,7 @@ BEGIN
         tableRegisterOutput(NUM_REGISTERS DOWNTO 0),
         input_register          => input_signal(REGISTER_SIZE DOWNTO 2),
         output_port             => output_reg,
-        output_valid            => output_valid,
+        output_valid            => outputValid_addressFound,
         output_registerNumber   => blank_regNum
     );
 
@@ -142,5 +143,7 @@ BEGIN
         sel     => is_src_there,
         result  => writeEnable(4 DOWNTO 0)
     );
+
+    address_found <= outputValid_addressFound;
 
 END Table_Architecture;
