@@ -18,11 +18,13 @@ ENTITY Table IS
     PORT(
         clock           : IN  STD_LOGIC;                                -- clock
         input_valid     : IN  STD_LOGIC;                                -- indicates valid data in input_reg
-        input_reg       : IN  STD_LOGIC_VECTOR(FRAME_SIZE DOWNTO 0);    -- port | source | destination
-        write_enable    : OUT STD_LOGIC;                                -- indicates we have read input_reg
+        input_reg       : IN  STD_LOGIC_VECTOR(97 DOWNTO 0);    -- dest | src | port
+        reset				: IN  STD_LOGIC;
+		  write_enable    : OUT STD_LOGIC;                                -- indicates we have read input_reg
         output_valid    : OUT STD_LOGIC;                                -- indicates valid data in output_reg
         address_found   : OUT STD_LOGIC;                                -- indicates table contains entry for dst address
         output_reg      : OUT STD_LOGIC_VECTOR(1 DOWNTO 0)              -- return same port if src not in table
+		  
     );
 END Table;
 
@@ -35,8 +37,19 @@ ARCHITECTURE Table_Architecture OF Table IS
         rst : IN  STD_LOGIC;
         pre : IN  STD_LOGIC;
         ce  : IN  STD_LOGIC;
-        d   : IN  STD_LOGIC_VECTOR(FRAME_SIZE DOWNTO 0);
-        q   : OUT STD_LOGIC_VECTOR(FRAME_SIZE DOWNTO 0)
+        d   : IN  STD_LOGIC_VECTOR(47 DOWNTO 0);
+        q   : OUT STD_LOGIC_VECTOR(47 DOWNTO 0)
+    );
+    END COMPONENT;
+	 
+	     COMPONENT D_FF_VHDL IS
+    PORT(
+        clk : IN  STD_LOGIC;
+        rst : IN  STD_LOGIC;
+        pre : IN  STD_LOGIC;
+        ce  : IN  STD_LOGIC;
+        d   : IN  STD_LOGIC_VECTOR(49 DOWNTO 0);
+        q   : OUT STD_LOGIC_VECTOR(49 DOWNTO 0)
     );
     END COMPONENT;
 
@@ -64,7 +77,8 @@ ARCHITECTURE Table_Architecture OF Table IS
     COMPONENT random IS GENERIC(width : INTEGER :=  5);
     PORT(
         clk         : IN STD_LOGIC;
-        random_num  : OUT STD_LOGIC_VECTOR(width-1 DOWNTO 0)   --output vector
+        random_num  : OUT STD_LOGIC_VECTOR(width-1 DOWNTO 0);   --output vector
+		  reset 		  : IN STD_LOGIC
     );
     END COMPONENT;
 
@@ -84,27 +98,41 @@ ARCHITECTURE Table_Architecture OF Table IS
     SIGNAL rand                     : STD_LOGIC_VECTOR(4 DOWNTO 0);
     SIGNAL blank_output_reg         : STD_LOGIC_VECTOR(1 DOWNTO 0);
     SIGNAL is_src_there             : STD_LOGIC;
+	 SIGNAL add_found						: STD_LOGIC;
     SIGNAL writeEnable              : STD_LOGIC_VECTOR(4 DOWNTO 0);
-    SIGNAL input_signal             : STD_LOGIC_VECTOR(FRAME_SIZE DOWNTO 0);
+    SIGNAL input_signal             : STD_LOGIC_VECTOR(97 DOWNTO 0);
 
 BEGIN
     --COMPONENT INSTANTIATIONS--
 
-    input_register_DFF : D_FF_INPUT 
+	 address_found <= add_found;
+	 output_valid <= add_found;
+	 
+    input_register_DST : D_FF_INPUT
     PORT MAP(
         clk => clock,
-        rst => '0',
+        rst => reset,
         pre => '0',
         ce  => input_valid,
-        d   => input_reg(FRAME_SIZE DOWNTO 0),
-        q   => input_signal(FRAME_SIZE DOWNTO 0)
+        d   => input_reg(97 DOWNTO 50),  
+        q   => input_signal(97 DOWNTO 50)
+    );
+	 
+	     input_register_SRC_PRT : D_FF_VHDL 
+    PORT MAP(
+        clk => clock,
+        rst => reset,
+        pre => '0',
+        ce  => input_valid,
+        d   => input_reg(49 DOWNTO 0),
+        q   => input_signal(49 DOWNTO 0)
     );
 
     myRegisterArray : RegisterArray
     PORT MAP(
-        in_aclr     => '0',
+        in_aclr     => reset,
         in_clock    => clock,
-        in_data     => input_signal(FRAME_SIZE DOWNTO 48),
+        in_data     => input_signal(49 DOWNTO 0),
         in_enable   => writeEnable,
         in_load     => '0',
         out_q       => tableRegisterOutput(NUM_REGISTERS downto 0)
@@ -113,16 +141,16 @@ BEGIN
     destLookup : Lookup
     PORT MAP(
         tableRegisterOutput(NUM_REGISTERS DOWNTO 0),
-        input_register          => input_signal(REGISTER_SIZE DOWNTO 2),
+        input_register          => input_signal(97 DOWNTO 50),
         output_port             => output_reg,
-        output_valid            => output_valid,
+        output_valid            => add_found,
         output_registerNumber   => blank_regNum
     );
 
     srcLookup : Lookup
     PORT MAP(
         tableRegisterOutput(NUM_REGISTERS DOWNTO 0),
-        input_register          => input_signal(FRAME_SIZE DOWNTO 50),
+        input_register          => input_signal(49 DOWNTO 2),
         output_port             => blank_output_reg,
         output_valid            => is_src_there,
         output_registerNumber   => myLookup_registerNumber(4 DOWNTO 0)
@@ -131,7 +159,8 @@ BEGIN
     myRandom : random
     PORT MAP(
         clk         => clock,
-        random_num  => rand(4 DOWNTO 0)   --output vector
+        random_num  => rand(4 DOWNTO 0),   --output vector
+		  reset 		  => reset
     );
 
     myMux: twoMux
