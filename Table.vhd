@@ -19,9 +19,9 @@ ENTITY Table IS
         clock           : IN  STD_LOGIC;                                -- clock
         input_valid     : IN  STD_LOGIC;                                -- indicates valid data in input_reg
         input_reg       : IN  STD_LOGIC_VECTOR(FRAME_SIZE DOWNTO 0);    -- port | source | destination
-        write_enable    : OUT STD_LOGIC;                                -- indicates we have read input_reg
         output_valid    : OUT STD_LOGIC;                                -- indicates valid data in output_reg
-        address_found   : OUT STD_LOGIC;                                -- indicates table contains entry for dst address
+        --I think this is redundant and we don't need it anymore, I don't know of a case where address_found and output_valid would be different
+        --address_found   : OUT STD_LOGIC;                                -- indicates table contains entry for dst address
         output_reg      : OUT STD_LOGIC_VECTOR(1 DOWNTO 0)              -- return same port if src not in table
     );
 END Table;
