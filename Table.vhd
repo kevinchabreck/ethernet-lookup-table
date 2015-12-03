@@ -46,7 +46,7 @@ signal current_s, next_s: state_type;
         q   : OUT STD_LOGIC_VECTOR(47 DOWNTO 0)
     );
     END COMPONENT;
-	 
+
 	     COMPONENT D_FF_VHDL IS
     PORT(
         clk : IN  STD_LOGIC;
@@ -121,11 +121,11 @@ BEGIN
         rst => reset,
         pre => '0',
         ce  => input_valid,
-        d   => input_reg(97 DOWNTO 50),  
+        d   => input_reg(97 DOWNTO 50),
         q   => input_signal(97 DOWNTO 50)
     );
-	 
-	     input_register_SRC_PRT : D_FF_VHDL 
+
+	     input_register_SRC_PRT : D_FF_VHDL
 
     PORT MAP(
         clk => clock,

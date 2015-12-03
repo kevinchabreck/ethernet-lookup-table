@@ -6,13 +6,13 @@ entity TableTester IS
   port(
     clock         : in  std_logic;                    -- clock
     reset         : in  std_logic;                    -- reset
-    start_test    : in  std_logic;
-    start_test_out: out std_logic;
-    src_port      : out std_logic_vector(1 downto 0); -- indicates valid data in output_reg
-    src_address   : out std_logic_vector(3 downto 0); -- indicates valid data in output_reg
-    dst_address   : out std_logic_vector(3 downto 0); -- indicates valid data in output_reg
-    --tbl_input     : out std_logic_vector(97 downto 0);
-    input_valid   : out std_logic;
+    trigger_in    : in  std_logic;                    -- logic analyzer trigger
+    clock_out     : out std_logic;                    -- clock signal for logic analyzer
+    trigger_out   : out std_logic;                    -- logic analyzer trigger
+    src_port      : out std_logic_vector(1 downto 0); -- src port (formatted for logic analyzer)
+    src_address   : out std_logic_vector(3 downto 0); -- src address (formatted for logic analyzer)
+    dst_address   : out std_logic_vector(3 downto 0); -- dst address (formatted for logic analyzer)
+    input_valid   : out std_logic;                    -- indicates valid data in input_reg
     output_valid  : out std_logic;                    -- indicates valid data in output_reg
     address_found : out std_logic;                    -- indicates table contains entry for dst address
     output_reg    : out std_logic_vector(1 downto 0)  -- return same port if src not in table
@@ -27,23 +27,34 @@ architecture TableTester_Architecture of TableTester is
     reset         : IN  STD_LOGIC;                      -- reset
     input_valid   : IN  STD_LOGIC;                      -- indicates valid data in input_reg
     input_reg     : IN  STD_LOGIC_VECTOR(97 downto 0);  -- port | source | destination
-    --write_enable  : OUT STD_LOGIC;                    -- indicates we have read input_reg
     output_valid  : OUT STD_LOGIC;                      -- indicates valid data in output_reg
     address_found : OUT STD_LOGIC;                      -- indicates table contains entry for dst address
     output_reg    : OUT STD_LOGIC_VECTOR(1 downto 0)    -- return same port if src not in table
   );
   end component;
 
-  type state_type is (initialize, lookUpAddressA, waitForAddressA, lookUpAddressB, waitForAddressB);
+  type state_type is (
+    initialize,
+    lookUpAddressA,
+    waitForAddressA,
+    lookUpAddressB,
+    waitForAddressB
+  );
   signal state_reg, state_next: state_type;
   signal inputvalid : std_logic;
-  signal input_reg   : std_logic_vector(97 downto 0);
+  signal input_reg  : std_logic_vector(97 downto 0);
+  signal srcaddr: integer;
+  signal dstaddr: integer;
+  signal srcport: integer;
+  signal clk_counter: integer := 0;
+  signal clk_counter_next : integer := 0;
   constant a: integer := 16#A#;
   constant b: integer := 16#B#;
+  constant COMPTIME: integer := 1;
 
 begin
 
-  start_test_out <= start_test;
+  clock_out <= clock;
 
   table_inst : Table
   PORT MAP(
@@ -51,80 +62,95 @@ begin
     reset => reset,
     input_valid => inputvalid,
     input_reg => input_reg,
-    --write_enable => write_enable,
     output_valid => output_valid,
     address_found => address_found,
     output_reg => output_reg
   );
 
-  --00000000000000000000000000000000000000000000000011111111111111111111111111111111111111111111111101
-  --11111111111111111111111111111111111111111111111100000000000000000000000000000000000000000000000010
-
-  -- clock and asynch reset
-  process (clock, reset)
+  -- clock and async reset
+  process (clock, reset, clk_counter_next)
   begin
-      if (reset='1') then
-        state_reg   <= initialize;
-      elsif rising_edge(clock) then
-        state_reg   <= state_next;
-      end if;
+    if (reset='1') then
+      state_reg   <= initialize;
+      clk_counter <= 0;
+    elsif rising_edge(clock) then
+      state_reg   <= state_next;
+      clk_counter <= clk_counter_next;
+    end if;
   end process;
 
   -- next-state & Mealy output logic
-  --process (state_reg, receive_data_valid, clk_counter)
-  process (state_reg, start_test)
+  process (state_reg, trigger_in, clk_counter)
   begin
     case state_reg is
       when initialize =>
-        src_port    <= "00";
-        src_address <= "0000";
-        dst_address <= "0000";
-        --tbl_input   <= conv_std_logic_vector(0, 98);
-        input_reg   <= conv_std_logic_vector(0, 98);
+        clk_counter_next <= 0;
+        srcport <= 0;
+        srcaddr <= 0;
+        dstaddr <= 0;
         inputvalid  <= '0';
-        input_valid <= '0';
-        if start_test = '1' then
-          state_next  <= lookUpAddressA;
+        if trigger_in = '1' then
+          state_next <= lookUpAddressA;
         else
-          state_next  <= initialize;
+          state_next <= initialize;
         end if;
       when lookUpAddressA =>
-        src_port    <= "01";
-        src_address <= conv_std_logic_vector(b, 4);
-        dst_address <= conv_std_logic_vector(a, 4);
-        --tbl_input   <= conv_std_logic_vector(a, 48) & conv_std_logic_vector(b, 48) & "01";
-        input_reg   <= conv_std_logic_vector(a, 48) & conv_std_logic_vector(b, 48) & "01";
-        inputvalid  <= '1';
-        input_valid <= '1';
-        state_next  <= waitForAddressA;
+        srcport  <= 1;
+        srcaddr  <= b;
+        dstaddr  <= a;
+        inputvalid <= '1';
+        if COMPTIME > 0 then
+          clk_counter_next <= 1;
+          state_next <= waitForAddressA;
+        else
+          clk_counter_next <= 0;
+          state_next <= lookUpAddressB;
+        end if;
       when waitForAddressA =>
-        src_port    <= "01";
-        src_address <= conv_std_logic_vector(b, 4);
-        dst_address <= conv_std_logic_vector(a, 4);
-        --tbl_input   <= conv_std_logic_vector(a, 48) & conv_std_logic_vector(b, 48) & "01";
-        input_reg   <= conv_std_logic_vector(a, 48) & conv_std_logic_vector(b, 48) & "01";
-        inputvalid  <= '1';
-        input_valid <= '1';
-        state_next  <= lookUpAddressB;
+        clk_counter_next <= clk_counter+1;
+        srcport <= 0;
+        srcaddr <= 0;
+        dstaddr <= 0;
+        inputvalid <= '0';
+        if clk_counter < COMPTIME then
+          state_next <= waitForAddressA;
+        else
+          state_next <= lookUpAddressB;
+        end if;
       when lookUpAddressB =>
-        src_port    <= "10";
-        src_address <= conv_std_logic_vector(a, 4);
-        dst_address <= conv_std_logic_vector(b, 4);
-        --tbl_input   <= conv_std_logic_vector(b, 48) & conv_std_logic_vector(a, 48) & "10";
-        input_reg   <= conv_std_logic_vector(b, 48) & conv_std_logic_vector(a, 48) & "10";
-        inputvalid  <= '1';
-        input_valid <= '1';
-        state_next  <= waitForAddressB;
+        srcport <= 2;
+        srcaddr <= a;
+        dstaddr <= b;
+        inputvalid <= '1';
+        if COMPTIME > 0 then
+          clk_counter_next <= 1;
+          state_next <= waitForAddressB;
+        else
+          clk_counter_next <= 0;
+          state_next <= lookUpAddressA;
+        end if;
       when waitForAddressB =>
-        src_port    <= "10";
-        src_address <= conv_std_logic_vector(a, 4);
-        dst_address <= conv_std_logic_vector(b, 4);
-        --tbl_input   <= conv_std_logic_vector(b, 48) & conv_std_logic_vector(a, 48) & "10";
-        input_reg   <= conv_std_logic_vector(b, 48) & conv_std_logic_vector(a, 48) & "10";
-        inputvalid  <= '1';
-        input_valid <= '1';
-        state_next  <= lookUpAddressA;
+        clk_counter_next <= clk_counter+1;
+        srcport <= 0;
+        srcaddr <= 0;
+        dstaddr <= 0;
+        inputvalid <= '0';
+        if clk_counter < COMPTIME then
+          state_next <= waitForAddressB;
+        else
+          state_next <= lookUpAddressA;
+        end if;
     end case;
+  end process;
+
+  process (trigger_in, srcport, srcaddr, dstaddr, inputvalid)
+  begin
+    trigger_out <= trigger_in;
+    input_reg   <= conv_std_logic_vector(dstaddr, 48) & conv_std_logic_vector(srcaddr, 48) & conv_std_logic_vector(srcport, 2);
+    input_valid <= inputvalid;
+    src_port    <= conv_std_logic_vector(srcport, 2);
+    src_address <= conv_std_logic_vector(srcaddr, 4);
+    dst_address <= conv_std_logic_vector(dstaddr, 4);
   end process;
 
 end TableTester_Architecture;
