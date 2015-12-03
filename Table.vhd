@@ -23,15 +23,17 @@ ENTITY Table IS
         reset				: IN  STD_LOGIC;
 		  write_enable    : OUT STD_LOGIC;                                -- indicates we have read input_reg
 
-        output_valid    : OUT STD_LOGIC;                                -- indicates valid data in output_reg
-        --I think this is redundant and we don't need it anymore, I don't know of a case where address_found and output_valid would be different
-        address_found   : OUT STD_LOGIC;                                -- indicates table contains entry for dst address
+        broadcast    : OUT STD_LOGIC;                                -- indicates can't find address
+       
+        output_valid   : OUT STD_LOGIC;                                -- indicates fwd should look at whats in the table
         output_reg      : OUT STD_LOGIC_VECTOR(1 DOWNTO 0)              -- return same port if src not in table
 		  
     );
 END Table;
 
 ARCHITECTURE Table_Architecture OF Table IS
+type state_type is (A, B);
+signal current_s, next_s: state_type;
 
     --INPUT REGISTER--
     COMPONENT D_FF_INPUT IS
@@ -72,7 +74,7 @@ ARCHITECTURE Table_Architecture OF Table IS
         input_registerArray     : IN VECTOR_PORT_MAC(NUM_REGISTERS DOWNTO 0);
         input_register          : IN  STD_LOGIC_VECTOR(MAC_SIZE DOWNTO 0);
         output_port             : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
-        output_valid            : OUT STD_LOGIC;
+        output_valid           : OUT STD_LOGIC;
         output_registerNumber   : OUT STD_LOGIC_VECTOR(4 DOWNTO 0)
     );
     END COMPONENT;
@@ -110,8 +112,8 @@ ARCHITECTURE Table_Architecture OF Table IS
 BEGIN
     --COMPONENT INSTANTIATIONS--
 
-	 address_found <= add_found;
-	 output_valid <= add_found;
+--	 output_valid <= add_found;
+	-- broadcast <= not add_found;
 	 
     input_register_DST : D_FF_INPUT
     PORT MAP(
@@ -178,4 +180,34 @@ BEGIN
     );
 
 
+	 process (clock, reset)
+	 begin
+	 if(reset = '1') then
+	 current_s <= A;
+	 elsif (rising_edge(clock)) then
+	 current_s <= next_s;
+	 end if;
+	 end process;
+	 
+	 process(current_s, input_valid)
+	 begin
+	 case current_s is
+	 when A =>
+	 if(input_valid = '1') then
+	 output_valid <= '0';
+	 broadcast <= '0';
+	 next_s <= B;
+	 else
+	 output_valid <= '0';
+	 broadcast <= '0';
+	 next_s <= A;
+	 end if;
+	 
+	 when B =>
+	 output_valid <= '1';
+	 broadcast <= not add_found;
+	 next_s <= A;
+	 end case;
+	 end process;
+	 
 END Table_Architecture;
